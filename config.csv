@@ -2,5 +2,5 @@ package_name,Newtonsoft.Json
 repository,https://api.nuget.org/v3/index.json
 test_mode,false
 ascii_tree,true
-max_depth,3
+max_depth,2
 filter_substring,Test
