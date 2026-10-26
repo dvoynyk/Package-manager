@@ -1,0 +1,6 @@
+package_name,X
+repository,tests/data/repo.txt
+test_mode,true
+ascii_tree,true
+max_depth,10
+filter_substring,
