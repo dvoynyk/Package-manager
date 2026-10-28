@@ -1,6 +1,7 @@
 """Тесты разбора файла тестового репозитория."""
 
 import os
+import shutil
 import tempfile
 import unittest
 
@@ -10,14 +11,15 @@ from testrepo import read_test_repo
 class TestRepoTest(unittest.TestCase):
     """Проверка формата файла 'A: B C'."""
 
-    def setUp(self):
-        """Создаёт временную папку."""
-        self.tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(self.tmp.cleanup)
+    def folder(self):
+        """Создаёт временную папку, которая удалится после теста."""
+        path = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, path, ignore_errors=True)
+        return path
 
     def read(self, text):
         """Записывает текст в файл и разбирает его."""
-        path = os.path.join(self.tmp.name, "repo.txt")
+        path = os.path.join(self.folder(), "repo.txt")
         with open(path, "w", encoding="utf-8") as file:
             file.write(text)
         return read_test_repo(path)

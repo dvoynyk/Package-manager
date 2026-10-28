@@ -2,6 +2,7 @@
 
 import csv
 import os
+import shutil
 import tempfile
 import unittest
 
@@ -21,16 +22,17 @@ BASE = {
 class ConfigTest(unittest.TestCase):
     """Проверка загрузки конфигурации и сообщений об ошибках."""
 
-    def setUp(self):
-        """Создаёт временную папку для файлов конфигурации."""
-        self.tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(self.tmp.cleanup)
+    def folder(self):
+        """Создаёт временную папку, которая удалится после теста."""
+        path = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, path, ignore_errors=True)
+        return path
 
     def write(self, **changes):
         """Пишет CSV с изменениями (None удаляет параметр)."""
         params = dict(BASE, **changes)
         params = {k: v for k, v in params.items() if v is not None}
-        path = os.path.join(self.tmp.name, "config.csv")
+        path = os.path.join(self.folder(), "config.csv")
         with open(path, "w", newline="", encoding="utf-8") as file:
             csv.writer(file).writerows(params.items())
         return path
@@ -56,7 +58,7 @@ class ConfigTest(unittest.TestCase):
     def test_missing_file(self):
         """Отсутствующий файл конфигурации даёт ValueError."""
         with self.assertRaises(ValueError):
-            load_config(os.path.join(self.tmp.name, "nope.csv"))
+            load_config(os.path.join(self.folder(), "nope.csv"))
 
     def test_test_mode_rules(self):
         """В тестовом режиме нужны файл и заглавные буквы."""

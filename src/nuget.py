@@ -3,7 +3,7 @@ import json
 import time
 import urllib.error
 import urllib.request
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as xml_tree
 
 HTTP_NOT_FOUND = 404
 HTTP_TOO_MANY = 429
@@ -95,8 +95,8 @@ def parse_group(child):
 
 def parse_nuspec(data):
     try:
-        root = ET.fromstring(data)
-    except ET.ParseError:
+        root = xml_tree.fromstring(data)
+    except xml_tree.ParseError:
         raise ValueError("не удалось разобрать .nuspec (некорректный XML)")
     result = {}
     for element in root.iter():
