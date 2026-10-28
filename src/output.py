@@ -39,9 +39,10 @@ def render_tree(graph, root, max_depth):
 
 
 def render_list(graph):
-    """Возвращает строки вида 'пакет -> зависимости'."""
     lines = []
     for package, deps in graph.items():
         text = ", ".join(deps) if deps else "(нет зависимостей)"
         lines.append(f"{package} -> {text}")
+    edges = sum(len(deps) for deps in graph.values())
+    lines.append(f"Вершин: {len(graph)}, рёбер: {edges}")
     return lines

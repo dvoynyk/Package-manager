@@ -1,4 +1,4 @@
-"""Визуализатор графа зависимостей NuGet-пакетов."""
+
 
 import sys
 
@@ -12,7 +12,6 @@ DEFAULT_CONFIG = "config.csv"
 
 
 def choose_getter(config):
-    """Выбирает источник данных: реальный NuGet или тестовый файл."""
     if not config["test_mode"]:
         return make_nuget_getter(config["repository"])
     get_deps, repo = make_test_getter(config["repository"])
@@ -24,7 +23,6 @@ def choose_getter(config):
 
 
 def run(config_path):
-    """Выполняет анализ и возвращает строки результата."""
     config = load_config(config_path)
     root = config["package_name"]
     substring = config["filter_substring"]
@@ -38,7 +36,6 @@ def run(config_path):
 
 
 def main(argv):
-    """Точка входа: печатает результат или ошибку, возвращает код."""
     path = (argv[1:] or [DEFAULT_CONFIG])[0]
     try:
         lines = run(path)

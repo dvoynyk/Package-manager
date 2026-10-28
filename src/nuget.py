@@ -1,4 +1,3 @@
-"""Получение прямых зависимостей пакета из репозитория NuGet v3."""
 
 import json
 import time
@@ -19,12 +18,10 @@ class NotFoundError(ValueError):
 
 
 def is_retryable(code):
-    """Показывает, стоит ли повторить запрос после этого кода ответа."""
     return code == HTTP_TOO_MANY or code >= HTTP_SERVER_ERROR
 
 
 def check_http_error(error, url):
-    """Бросает ValueError, если повторять запрос бессмысленно."""
     if error.code == HTTP_NOT_FOUND:
         raise NotFoundError(f"ничего не найдено по адресу {url} (404)")
     if not is_retryable(error.code):
@@ -32,7 +29,6 @@ def check_http_error(error, url):
 
 
 def request_once(url):
-    """Выполняет один HTTP-запрос и возвращает байты ответа."""
     request = urllib.request.Request(
         url, headers={"User-Agent": "depviz", "Connection": "close"})
     with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
@@ -40,7 +36,6 @@ def request_once(url):
 
 
 def download(url):
-    """Скачивает URL; при временных сбоях повторяет попытку."""
     last_error = ""
     for attempt in range(ATTEMPTS):
         try:
@@ -57,7 +52,6 @@ def download(url):
 
 
 def find_package_base(index_url):
-    """Достаёт из сервисного индекса адрес PackageBaseAddress."""
     try:
         resources = json.loads(download(index_url))["resources"]
         for resource in resources:
@@ -69,7 +63,6 @@ def find_package_base(index_url):
 
 
 def pick_version(base, name):
-    """Возвращает последнюю стабильную версию пакета."""
     url = f"{base}{name.lower()}/index.json"
     try:
         data = download(url)
@@ -86,12 +79,10 @@ def pick_version(base, name):
 
 
 def local(tag):
-    """Отбрасывает пространство имён: '{ns}dependency' -> 'dependency'."""
     return tag.split("}")[-1]
 
 
 def parse_group(child):
-    """Возвращает (платформа, список элементов dependency)."""
     kind = local(child.tag)
     if kind == "group":
         framework = child.get("targetFramework") or ANY_FRAMEWORK
@@ -103,7 +94,6 @@ def parse_group(child):
 
 
 def parse_nuspec(data):
-    """Разбирает .nuspec и возвращает {платформа: [(id, версия)]}."""
     try:
         root = ET.fromstring(data)
     except ET.ParseError:
@@ -121,7 +111,6 @@ def parse_nuspec(data):
 
 
 def collect_names(deps_by_framework):
-    """Объединяет имена зависимостей всех платформ без повторов."""
     names = []
     for items in deps_by_framework.values():
         for dep_id, _ in items:
@@ -131,11 +120,9 @@ def collect_names(deps_by_framework):
 
 
 def make_nuget_getter(index_url):
-    """Возвращает функцию get_deps(имя) -> имена прямых зависимостей."""
     base = find_package_base(index_url)
 
     def get_deps(name):
-        """Скачивает .nuspec пакета и возвращает его зависимости."""
         version = pick_version(base, name)
         lower = name.lower()
         url = f"{base}{lower}/{version}/{lower}.nuspec"
